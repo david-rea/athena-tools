@@ -4,6 +4,7 @@ Collection of data objects that contain Athena output.
 
 import os
 import numpy as np
+from scipy.optimize import minimize
 from glob import glob
 
 
