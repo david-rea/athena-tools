@@ -195,3 +195,72 @@ def dotdel(f, g, delta=None):
         fddg[-1,:,:,i] += f[-1,:,:,2] * (g[-1,:,:,i] - g[-2,:,:,i])
     
     return fddg
+
+def shear_map(data, deltat, x, dy, omega=1.0, order=2, reverse=False):
+    "Map 'data' from y --> y - q \Omega x (t - t_n) so data is periodic in the x direction"
+    
+    if len(data.shape)==3: # 3D data
+        axis=1
+    elif len(data.shape)==2: # 2D plane in xy
+        axis=-1
+    else:
+        print(data.shape)
+        raise ValueError("Something has gone wrong in shear_map...")
+    
+    nx = data.shape[-1]
+    
+    data_shift = np.zeros_like(data, float)
+        
+    # compute the array of integer number of zones to shift by
+    deltay = 1.5*omega*x*deltat
+    shift_int = np.round(deltay/dy).astype(int)
+    
+    # compute the array of fractional number of zones to shift by
+    shift_frac = deltay/dy - shift_int
+    
+    if reverse: r = -1
+    else: r = 1
+    
+    if order==1:
+        for i in range(nx):
+                data_shift[...,i] = np.roll(data[...,i], r*shift_int[i], axis=1)
+                
+    elif order==2:
+        for i in range(nx):
+                data_shift[...,i] = (1.0-shift_frac[i]) * np.roll(data[...,i],
+                                                                  r*shift_int[i], axis=axis) + \
+                                          shift_frac[i] * np.roll(data[...,i],
+                                                                  r*(shift_int[i]+1), axis=axis)
+                
+    else: raise ValueError("shear mapping routine must be either first or second order")
+
+    return data_shift
+
+def map_k(data, deltat, box_size, omega=1.0, reverse=False):
+    """
+    Re-map 'data' in k-space from Lagrangian wavenumber k_x = 2\pi n_x/L_x
+    to Eulerian wavenumber k_x = 'k_x,L + q\Omega k_y t
+    """
+    
+    Lx, Ly, _ = box_size
+    ny = data.shape[-2]
+    
+    data_shift = np.zeros_like(data, complex)
+        
+    deltamx = 1.5*omega*(Lx/Ly)*deltat * np.arange(-ny//2, ny//2)
+    
+    shift_int = np.fft.fftshift(np.round(deltamx).astype(int))
+    
+    if reverse:
+        shift_int = -shift_int
+    
+    if len(data.shape)==3:
+        for j in range(ny):
+            data_shift[:,j,:] = np.roll(data[:,j,:], shift_int[j], axis=1)
+    elif len(data.shape)==2:
+        for j in range(ny):
+            data_shift[j,:] = np.roll(data[j,:], shift_int[j])
+    else:
+        raise ValueError("Something has gone wrong in map_k...")
+    
+    return data_shift
