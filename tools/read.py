@@ -239,10 +239,10 @@ class SpaceTimeData:
     version = '1.1'
         
     def __init__(self, path, dt=1.0, fmt='1d', silent=False):
-      """
-      path : directory containing the series of 1d files
-      dt   : timestep between 1d file outputs
-      """
+        """
+        path : directory containing the series of 1d files
+        dt   : timestep between 1d file outputs
+        """
         
         if path[-1] not in ['\\', '/']:
             path += '/'
