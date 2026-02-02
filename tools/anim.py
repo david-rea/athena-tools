@@ -8,6 +8,18 @@ Install cv2 with
 import cv2
 
 
+def progress(it: int, total: int):
+
+    fill = "█"
+    length = 50
+
+    fraction = it/total
+    filledLength = int(length*fraction)
+    
+    bar = fill*filledLength + "-"*(length - filledLength)    
+
+    print(f"\rProgress |{bar}| {100*fraction:.1f}% Complete", end='\r')
+
 def animate(images, outfile, fps=10, **kwargs):
     """
     Animate a a collection of still images
@@ -19,9 +31,11 @@ def animate(images, outfile, fps=10, **kwargs):
     
     if outfile[-4] != ".mp4":
         outfile += ".mp4"
+
+    N = len(images)
     
     w = None
-    for image in images:
+    for i, image in enumerate(images):
 
         frame = cv2.imread(image)
 
@@ -37,6 +51,8 @@ def animate(images, outfile, fps=10, **kwargs):
         # for repeat in range(duration*fps):
         #     writer.write(frame)
         #
+
+    progress(i, N)
 
     writer.release()
     
