@@ -1,5 +1,8 @@
 """
 Function for making animations
+
+Install cv2 with
+> pip install opencv-python
 """
 
 import cv2
