@@ -8,34 +8,36 @@ Install cv2 with
 import cv2
 
 
-def animate(files, filename, fps=10, **kwargs):
+def animate(images, outfile, fps=10, **kwargs):
     """
     Animate a a collection of still images
-    : files    : list of image files that make the individual movie frames
-    : filename : the animation will save to 'filename.mp4'
-    : fps      : frames per second
+    : images  : list of image files that make the individual movie frames (using e.g. 'glob' module)
+    : outfile : the animation will save to 'outfile.mp4'
+    : fps     : desired frames per second
     keyword arguments are passed to 'cv2.VideoWriter'
     """
-        
-    if filename[-4] not '.mp4':
-        filename += '.mp4'
+    
+    if outfile[-4] != ".mp4":
+        outfile += ".mp4"
     
     w = None
-    for file in files:
+    for image in images:
 
-        frame = cv2.imread(file)
+        frame = cv2.imread(image)
 
         if w is None: # first iteration, set up writer
             h, w, _ = frame.shape
             fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-            writer = cv2.VideoWriter(filename, fourcc, fps, (w,h), **kwargs)
+            writer = cv2.VideoWriter(outfile, fourcc, fps, (w,h), **kwargs)
 
         writer.write(frame)
 
         # if you want to extend the frame
+        #
         # for repeat in range(duration*fps):
         #     writer.write(frame)
+        #
 
     writer.release()
     
-    print(f"Video file '{filename}' created")
+    print(f"Video file '{outfile}' created")
