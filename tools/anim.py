@@ -52,8 +52,8 @@ def animate(images, outfile, fps=10, **kwargs):
         #     writer.write(frame)
         #
 
-    progress(i, N)
+        progress(i+1, N)
 
     writer.release()
     
-    print(f"Video file '{outfile}' created")
+    print(f"\nVideo file '{outfile}' created")
